@@ -641,10 +641,19 @@ EV.views.municipal = (function () {
 
   // HU-43 Ver estado de solicitudes y HU-47 Responder dentro del hilo
   function solicitudes(root) {
-    root.innerHTML = '<div class="card"><h2>Solicitudes de las juntas vecinales</h2><div id="sl" aria-live="polite"></div></div>';
+    root.innerHTML = '<div class="card"><h2>Solicitudes de las juntas vecinales</h2><p class="text-muted">Resumen general de solicitudes recibidas.</p><div id="solStats" class="kpis" aria-live="polite"></div><div id="sl" aria-live="polite"></div></div>';
 
     function draw() {
       const lista = S.s.solicitudes.slice().sort((a, b) => b.createdAt - a.createdAt);
+      // HU-46: resumen de solicitudes por estado y tipo.
+      const stats = [
+        ['Total', lista.length],
+        ['Enviadas', lista.filter(s => s.status === 'enviada').length],
+        ['En revisión', lista.filter(s => s.status === 'revision').length],
+        ['Atendidas', lista.filter(s => s.status === 'atendida').length]
+      ];
+      root.querySelector('#solStats').innerHTML = stats.map(k => `<div class="kpi"><span class="kpi-n">${k[1]}</span><span class="kpi-l">${k[0]}</span></div>`).join('') +
+        '<p class="text-muted" style="grid-column:1/-1">Por tipo: ' + Object.keys(S.SOL_TIPOS).map(k => esc(S.SOL_TIPOS[k]) + ': ' + lista.filter(s => s.tipo === k).length).join(' · ') + '</p>';
       if (!lista.length) {
         root.querySelector('#sl').innerHTML = '<p class="empty">No hay solicitudes.</p>';
         return;
