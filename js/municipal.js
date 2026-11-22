@@ -243,7 +243,7 @@ EV.views.municipal = (function () {
   function panel(root) {
     const filtros = S.s.filters;
     const opcionesZona = S.ZONES.map(z => `<option value="${z.id}">${esc(z.name)}</option>`).join('');
-    root.innerHTML = `<div class="card"><h2>Panel de reportes de la jurisdicción</h2>
+    root.innerHTML = `<div class="card"><div class="feed-header"><h2>Panel de reportes de la jurisdicción</h2><button type="button" class="btn btn-secondary btn-sm" id="exportReports">Generar reporte consolidado</button></div>
       <p class="text-muted">${esc(S.MUNI)}. Todos los reportes llegan aquí directamente, sin pasar por el filtro de otra área.</p>
       <div id="alerts" aria-live="polite"></div>
       <div id="kpis" class="kpis"></div>
@@ -278,6 +278,32 @@ EV.views.municipal = (function () {
 
     const $ = selector => root.querySelector(selector);
     const mapa = EV.map.create('pMap', { lat: -12.045, lng: -77.03 }, 13);
+
+    // HU-41: generar un consolidado descargable de los reportes registrados.
+    $('#exportReports').addEventListener('click', () => {
+      const columnas = ['Código', 'Fecha de registro', 'Zona', 'Estado', 'Prioridad', 'Puntaje', 'Vecinos asociados', 'Reservado', 'Fecha de cierre'];
+      const filas = S.s.reports.map(r => {
+        const prioridad = S.priority(r);
+        const grupo = S.clusters()[r.id];
+        const vecinos = grupo ? grupo.people : 1 + (r.supporters || []).length;
+        return [
+          r.id, U.fmtDateTime(r.createdAt), S.zoneById(r.zone).name, EV.ui.STATUS[r.status],
+          prioridad.eff, prioridad.effScore, vecinos, r.reserved ? 'Sí' : 'No',
+          r.closedAt ? U.fmtDateTime(r.closedAt) : ''
+        ];
+      });
+      const csv = [columnas, ...filas].map(fila => fila.map(valor => '"' + String(valor ?? '').replace(/"/g, '""') + '"').join(';')).join('\\r\\n');
+      const blob = new Blob(['\\uFEFF', csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const enlace = document.createElement('a');
+      enlace.href = url;
+      enlace.download = 'ecovecinos-reporte-consolidado-' + U.todayISO() + '.csv';
+      document.body.appendChild(enlace);
+      enlace.click();
+      enlace.remove();
+      URL.revokeObjectURL(url);
+      EV.ui.toast('Reporte consolidado generado en formato CSV.', 'success');
+    });
     const campos = { fz: 'zona', fd: 'desde', fh: 'hasta', fe: 'estado', fo: 'orden' };
     const dialogo = document.getElementById('dialog');
     let primeraVez = true;
