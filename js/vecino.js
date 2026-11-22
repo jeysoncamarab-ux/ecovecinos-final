@@ -751,7 +751,7 @@ EV.views.vecino = (function () {
         return { id: z.id, name: z.name, points: miembros.reduce((total, v) => total + v.points, 0), participants: miembros.length };
       }).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'es'));
       const puestoBarrio = barrios.findIndex(z => z.id === miZona) + 1;
-      const puntosMios = Number(S.s.settings.points[me()] || 0);
+      const puntosMios = Number((vecinos.find(v => v.id === me()) || {}).points || 0);
       const visible = S.s.settings.rankingPublic[me()];
 
       root.innerHTML = `<div class="card">
