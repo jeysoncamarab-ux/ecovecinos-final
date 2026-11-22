@@ -715,7 +715,7 @@ EV.views.vecino = (function () {
       { id: 'reportar', icon: '../assets/camara.svg', label: 'Reportar', render: reportar },
       { id: 'cerca', icon: '../assets/cercaMio.svg', label: 'Cerca de mí', render: cerca },
       { id: 'mis', icon: '../assets/mis.svg', label: 'Mis reportes', render: mis },
-      { id: 'faenas', icon: '../assets/faena.svg', label: 'Faenas', render: faenas }
+      { id: 'faenas', icon: '../assets/faena.svg', label: 'Faenas', render: faenas },\n      { id: 'ranking', icon: '../assets/mis.svg', label: 'Ranking', render: ranking }
     ]
   };
 })();
