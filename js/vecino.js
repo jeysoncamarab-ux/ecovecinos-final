@@ -710,12 +710,103 @@ EV.views.vecino = (function () {
     return { refresh: draw };
   }
 
+
+  // HU-14: ranking semanal de vecinos y barrios.
+  function ranking(root) {
+    const fecha = new Date();
+    const dia = (fecha.getUTCDay() + 6) % 7;
+    fecha.setUTCDate(fecha.getUTCDate() - dia + 3);
+    const jueves = new Date(Date.UTC(fecha.getUTCFullYear(), 0, 4));
+    const semana = 1 + Math.round(((fecha - jueves) / 86400000 - 3 + ((jueves.getUTCDay() + 6) % 7)) / 7);
+    const semanaActual = fecha.getUTCFullYear() + '-S' + String(semana).padStart(2, '0');
+
+    if (!S.s.settings.rankingPublic) S.s.settings.rankingPublic = {};
+    if (typeof S.s.settings.rankingPublic[me()] !== 'boolean') S.s.settings.rankingPublic[me()] = true;
+
+    // Puntajes ficticios para que el ranking de demostración sea visible desde el primer acceso.
+    if (!Object.values(S.s.settings.points || {}).some(p => Number(p) > 0)) {
+      S.s.settings.points = { [me()]: 35, 'v-rosa': 80, 'v-carlos': 65, 'v-lucila': 50, 'v-jorge': 40, 'v-marta': 30, 'v-luis': 20, 'v-elena': 15, 'v-ana': 60, 'v-raul': 45, 'v-nora': 25, 'v-irma': 55, 'v-oscar': 35 };
+    }
+
+    if (!S.s.settings.rankingSnapshot || S.s.settings.rankingSnapshot.week !== semanaActual) {
+      S.s.settings.rankingSnapshot = {
+        week: semanaActual,
+        updatedAt: Date.now(),
+        neighbors: S.VECINOS.map(v => ({
+          id: v.id, name: v.id === me() ? 'Tú' : v.name, zone: v.zone,
+          points: Number(S.s.settings.points[v.id] || 0)
+        }))
+      };
+      S.save();
+    }
+
+    function draw() {
+      const snapshot = S.s.settings.rankingSnapshot;
+      const vecinos = snapshot.neighbors.slice().sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'es'));
+      const visibles = vecinos.filter(v => v.id !== me() || S.s.settings.rankingPublic[me()]);
+      const miPuesto = vecinos.findIndex(v => v.id === me()) + 1;
+      const miZona = S.vecinoById(me()).zone;
+      const barrios = S.ZONES.map(z => {
+        const miembros = vecinos.filter(v => v.zone === z.id);
+        return { id: z.id, name: z.name, points: miembros.reduce((total, v) => total + v.points, 0), participants: miembros.length };
+      }).sort((a, b) => b.points - a.points || a.name.localeCompare(b.name, 'es'));
+      const puestoBarrio = barrios.findIndex(z => z.id === miZona) + 1;
+      const puntosMios = Number(S.s.settings.points[me()] || 0);
+      const visible = S.s.settings.rankingPublic[me()];
+
+      root.innerHTML = `<div class="card">
+        <div class="feed-header"><div><h2>Ranking de vecinos</h2><p class="text-muted">Reconocemos la participación en las actividades de limpieza.</p></div><span class="badge badge--info">Corte semanal</span></div>
+        <div class="kpis">
+          <div class="kpi"><span class="kpi-n">#${miPuesto}</span><span class="kpi-l">Tu posición</span></div>
+          <div class="kpi"><span class="kpi-n">${puntosMios}</span><span class="kpi-l">Tus puntos</span></div>
+          <div class="kpi"><span class="kpi-n">#${puestoBarrio}</span><span class="kpi-l">Posición de tu barrio</span></div>
+        </div>
+        <p class="text-muted">Última actualización: ${U.fmtDateTime(snapshot.updatedAt)}. El ranking se renueva semanalmente al abrir esta sección.</p>
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="rankingVisible" ${visible ? 'checked' : ''}>
+          <label for="rankingVisible"><strong>Aparecer en el ranking público</strong><br><span class="text-muted">Si desactivas esta opción, tu nombre no se mostrará. Tus puntos seguirán contabilizándose para tu barrio.</span></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Vecinos más activos</h2>
+        <div class="table-wrap"><table class="table table--cards">
+          <caption class="sr-only">Posición semanal de vecinos por puntos</caption>
+          <thead><tr><th scope="col">Puesto</th><th scope="col">Vecino</th><th scope="col">Barrio</th><th scope="col">Puntos</th></tr></thead>
+          <tbody>${visibles.map(v => {
+            const puesto = vecinos.findIndex(x => x.id === v.id) + 1;
+            return `<tr><td data-label="Puesto">#${puesto}</td><td data-label="Vecino">${esc(v.name)}</td><td data-label="Barrio">${esc(S.zoneById(v.zone).name)}</td><td data-label="Puntos"><strong>${v.points}</strong></td></tr>`;
+          }).join('') || '<tr><td colspan="4">No hay participantes visibles.</td></tr>'}</tbody>
+        </table></div>
+        ${visible ? '' : '<p class="notice notice--soft">Tu perfil está oculto del ranking público. Tus puntos siguen sumando para tu barrio.</p>'}
+      </div>
+      <div class="card">
+        <h2>Ranking de barrios</h2>
+        <div class="table-wrap"><table class="table table--cards">
+          <caption class="sr-only">Puntos acumulados por barrio</caption>
+          <thead><tr><th scope="col">Puesto</th><th scope="col">Barrio</th><th scope="col">Participantes</th><th scope="col">Puntos</th></tr></thead>
+          <tbody>${barrios.map((z, i) => `<tr><td data-label="Puesto">#${i + 1}</td><td data-label="Barrio">${esc(z.name)} ${z.id === miZona ? '<span class="badge badge--info">Tu barrio</span>' : ''}</td><td data-label="Participantes">${z.participants}</td><td data-label="Puntos"><strong>${z.points}</strong></td></tr>`).join('')}</tbody>
+        </table></div>
+      </div>`;
+
+      root.querySelector('#rankingVisible').addEventListener('change', e => {
+        S.s.settings.rankingPublic[me()] = e.target.checked;
+        S.save();
+        EV.ui.toast(e.target.checked ? 'Tu nombre volverá a aparecer en el ranking público.' : 'Tu nombre ya no aparecerá en el ranking público. Tus puntos se conservan.', 'success');
+        draw();
+      });
+    }
+
+    draw();
+    return { refresh: draw };
+  }
+
   return {
     tabs: [
       { id: 'reportar', icon: '../assets/camara.svg', label: 'Reportar', render: reportar },
       { id: 'cerca', icon: '../assets/cercaMio.svg', label: 'Cerca de mí', render: cerca },
       { id: 'mis', icon: '../assets/mis.svg', label: 'Mis reportes', render: mis },
-      { id: 'faenas', icon: '../assets/faena.svg', label: 'Faenas', render: faenas },\n      { id: 'ranking', icon: '../assets/mis.svg', label: 'Ranking', render: ranking }
+      { id: 'faenas', icon: '../assets/faena.svg', label: 'Faenas', render: faenas },
+      { id: 'ranking', icon: '../assets/mis.svg', label: 'Ranking', render: ranking }
     ]
   };
 })();
