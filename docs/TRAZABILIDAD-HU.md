@@ -36,3 +36,25 @@ HU-40 | Should | Dirigente · Casos | casos con 4 fases | No se avanza sin una a
 HU-44 | Should | Dirigente · Solicitudes / campana | `checkAlerts`, `remind` | Alerta por plazo vencido y reenvío de recordatorio desde la notificación 
 
 > Reglas del puntaje de prioridad (HU-21): volumen 30 + riesgo 30 + ubicación 20 + frecuencia 20 = 100. Nivel Alta ≥ 70, Media ≥ 45, Baja < 45.
+
+
+## Ampliación de trazabilidad para la evaluación de 48 HU
+
+Las siguientes funciones se incorporaron o se identificaron durante la revisión ampliada. La presencia en código no equivale a una prueba de aceptación aprobada.
+
+| HU | Estado de implementación en esta rama | Ubicación / observación |
+|---|---|---|
+| HU-14 | No encontrada | No existe vista de ranking de vecinos. |
+| HU-15 | No encontrada | No existe flujo de canje de puntos por beneficios. |
+| HU-19 | Implementada en código; pendiente de prueba funcional | `js/map.js`: los marcadores de reportes próximos se agrupan visualmente y conservan sus registros individuales. |
+| HU-23 | Parcial | `store.priority` considera reportes resueltos cercanos como reincidencia para el factor de frecuencia; falta una consulta/vista específica de reincidencia. |
+| HU-24 | Implementada en código; pendiente de prueba funcional | `js/municipal.js`: resumen por zona con total, pendientes, en atención, resueltos y atrasados. |
+| HU-28 | Parcial / requiere validación | Se muestra la distancia entre la ubicación de la foto posterior y el punto reportado; falta confirmar una regla de bloqueo por umbral GPS. |
+| HU-32 | No encontrada | No se identificó un resumen específico por junta vecinal. |
+| HU-41 | Implementada en código; pendiente de prueba funcional | `js/municipal.js`: descarga CSV consolidada de reportes. |
+| HU-42 | No encontrada | No se identificó registro de verificación entre pares. |
+| HU-45 | Implementada en código; pendiente de prueba funcional | `js/dirigente.js`: advierte si la misma junta ya tiene una solicitud abierta del mismo tipo y asunto; permite confirmar el envío de todos modos. |
+| HU-46 | Implementada en código; pendiente de prueba funcional | `js/municipal.js`: resumen de solicitudes por estado y tipo. |
+| HU-48 | No encontrada | No se identificó una calificación de la atención recibida. |
+
+**Pendiente antes de declarar las 48 HU listas:** implementar las historias marcadas como «No encontrada», completar las parciales y ejecutar las pruebas funcionales en GitHub Pages. Las HU que ya existían en la trazabilidad original también deben volver a probarse tras los cambios.
