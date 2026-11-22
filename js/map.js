@@ -1,6 +1,5 @@
 EV.map = (function () {
   const COLORS = { pending: '#b7791f', active: '#2b6cb0', resolved: '#2f855a' };
-  const RADIO_AGRUPACION = 50;
 
   // Lógica del mapa con Leaflet y OpenStreetMap
 
