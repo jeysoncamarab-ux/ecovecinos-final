@@ -534,16 +534,33 @@ EV.views.dirigente = (function () {
       const asunto = root.querySelector('#sAsunto').value.trim();
       const mensaje = root.querySelector('#sMsg').value.trim();
       if (!setError(root, 'eAs', asunto ? '' : 'Indica el asunto de la solicitud.')) return;
-      const s = {
-        id: S.nextId('SOL', 'sol'), juntaId: JID, tipo: root.querySelector('#sTipo').value, asunto: asunto,
-        createdAt: Date.now(), status: 'enviada', lastChange: Date.now(), zone: zonaDeLaJunta().id, reminders: 0, thread: []
+      const tipo = root.querySelector('#sTipo').value;
+      const normalizar = texto => texto.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\\s+/g, ' ').trim();
+      const asuntoNormalizado = normalizar(asunto);
+      const duplicada = S.s.solicitudes.find(s =>
+        s.juntaId === JID && s.tipo === tipo && s.status !== 'atendida' &&
+        normalizar(s.asunto) === asuntoNormalizado
+      );
+
+      const enviar = () => {
+        const s = {
+          id: S.nextId('SOL', 'sol'), juntaId: JID, tipo: tipo, asunto: asunto,
+          createdAt: Date.now(), status: 'enviada', lastChange: Date.now(), zone: zonaDeLaJunta().id, reminders: 0, thread: []
+        };
+        if (mensaje) S.addMessage(s.thread, 'dirigente', mensaje);
+        S.s.solicitudes.push(s);
+        S.notify('municipal', 'Nueva solicitud ' + s.id + ' de la ' + junta().name + ': ' + asunto + '.', s.id);
+        S.save();
+        EV.ui.toast('Solicitud ' + s.id + ' enviada.', 'success');
+        e.target.reset();
       };
-      if (mensaje) S.addMessage(s.thread, 'dirigente', mensaje);
-      S.s.solicitudes.push(s);
-      S.notify('municipal', 'Nueva solicitud ' + s.id + ' de la ' + junta().name + ': ' + asunto + '.', s.id);
-      S.save();
-      EV.ui.toast('Solicitud ' + s.id + ' enviada.', 'success');
-      e.target.reset();
+
+      // HU-45: advertir si ya existe una solicitud abierta con el mismo tipo y asunto.
+      if (duplicada) {
+        EV.ui.confirmar('Ya existe la solicitud ' + duplicada.id + ' con el mismo tipo y asunto, actualmente ' + S.SOL_ESTADOS[duplicada.status].toLowerCase() + '. ¿Deseas enviar otra de todos modos?', 'Enviar otra', enviar);
+        return;
+      }
+      enviar();
     });
 
     root.querySelector('#lf').addEventListener('submit', e => {
