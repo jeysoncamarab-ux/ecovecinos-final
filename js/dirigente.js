@@ -536,10 +536,16 @@ EV.views.dirigente = (function () {
       if (!setError(root, 'eAs', asunto ? '' : 'Indica el asunto de la solicitud.')) return;
       const tipo = root.querySelector('#sTipo').value;
       const normalizar = texto => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
-      const asuntoNormalizado = normalizar(asunto);
+      const tokens = texto => new Set(normalizar(texto).split(' ').filter(p => p.length > 2));
+      const descripcionSimilar = (a, b) => {
+        const A = tokens(a), B = tokens(b);
+        if (!A.size || !B.size) return normalizar(a) === normalizar(b);
+        const comunes = [...A].filter(p => B.has(p)).length;
+        return comunes / new Set([...A, ...B]).size >= 0.6;
+      };
       const duplicada = S.s.solicitudes.find(s =>
-        s.juntaId === JID && s.tipo === tipo && s.status !== 'atendida' &&
-        normalizar(s.asunto) === asuntoNormalizado
+        s.juntaId === JID && s.zone === zonaDeLaJunta().id && s.tipo === tipo &&
+        s.status !== 'atendida' && descripcionSimilar(s.asunto, asunto)
       );
 
       const enviar = () => {
