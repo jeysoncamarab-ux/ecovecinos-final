@@ -247,6 +247,10 @@ EV.views.municipal = (function () {
       <p class="text-muted">${esc(S.MUNI)}. Todos los reportes llegan aquí directamente, sin pasar por el filtro de otra área.</p>
       <div id="alerts" aria-live="polite"></div>
       <div id="kpis" class="kpis"></div>
+      <section class="zone-indicators" aria-labelledby="zoneStatsTitle">
+        <h3 id="zoneStatsTitle">Indicadores por zona</h3>
+        <div id="zoneStats" class="table-wrap" aria-live="polite"></div>
+      </section>
       <form id="flt" class="form-grid" aria-label="Filtros del panel">
         <div class="form-group"><label for="fz">Zona</label><select id="fz"><option value="all">Todas</option>${opcionesZona}</select></div>
         <div class="form-group"><label for="fd">Desde</label><input id="fd" type="date"></div>
@@ -429,6 +433,31 @@ EV.views.municipal = (function () {
         ['Resueltos', todos.filter(r => r.status === 'resolved').length]
       ];
       $('#kpis').innerHTML = indicadores.map(k => `<div class="kpi"><span class="kpi-n">${k[1]}</span><span class="kpi-l">${k[0]}</span></div>`).join('');
+
+      // HU-24: resumen de volumen y estado de atención por cada zona.
+      const porZona = S.ZONES.map(z => {
+        const reportes = todos.filter(r => r.zone === z.id);
+        return {
+          nombre: z.name,
+          total: reportes.length,
+          pendientes: reportes.filter(r => r.status === 'pending').length,
+          atencion: reportes.filter(r => r.status === 'active').length,
+          resueltos: reportes.filter(r => r.status === 'resolved').length,
+          atrasados: reportes.filter(r => S.isOverdue(r)).length
+        };
+      });
+      $('#zoneStats').innerHTML = `<table class="table table--cards">
+        <caption class="sr-only">Cantidad de reportes por zona y estado</caption>
+        <thead><tr><th scope="col">Zona</th><th scope="col">Total</th><th scope="col">Pendientes</th><th scope="col">En atención</th><th scope="col">Resueltos</th><th scope="col">Atrasados</th></tr></thead>
+        <tbody>${porZona.map(z => `<tr>
+          <th scope="row" data-label="Zona">${esc(z.nombre)}</th>
+          <td data-label="Total">${z.total}</td>
+          <td data-label="Pendientes">${z.pendientes}</td>
+          <td data-label="En atención">${z.atencion}</td>
+          <td data-label="Resueltos">${z.resueltos}</td>
+          <td data-label="Atrasados">${z.atrasados}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
 
       if (mapa) {
         mapa.setMarkers(lista.map(x => x.r), openReport);
