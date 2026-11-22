@@ -53,6 +53,10 @@ EV.views.municipal = (function () {
       const zona = S.zoneById(r.zone);
       const junta = S.juntaOfZone(r.zone);
       const despues = r.after;
+      // HU-23: consultar reportes anteriores resueltos en un radio de 50 metros.
+      const reincidencias = S.s.reports.filter(o =>
+        o.id !== r.id && o.status === 'resolved' && EV.util.dist(o, r) <= 50
+      ).sort((a, b) => (b.closedAt || b.createdAt) - (a.closedAt || a.createdAt));
       const puedeCerrar = r.status !== 'resolved' && despues && despues.status === 'approved';
 
       let origen = 'Vecino registrado';
@@ -74,6 +78,16 @@ EV.views.municipal = (function () {
         esperaCuadrilla = '<p class="text-muted">Inicia la atención para que la tarea aparezca en la pestaña Cuadrilla.</p>';
       } else if (necesitaFoto(r)) {
         esperaCuadrilla = '<p class="text-muted">La cuadrilla tiene esta tarea en su pestaña y subirá ahí la foto de "después".</p>';
+      }
+
+      let reincidenciasHtml = '';
+      if (reincidencias.length) {
+        reincidenciasHtml = seccion('reincidencias', 'Reincidencia en el punto (' + reincidencias.length + ')',
+          '<p class="text-muted">Reportes anteriores resueltos a 50 metros o menos de esta ubicación:</p><ul class="plain-list">' +
+          reincidencias.map(o => `<li><strong>${esc(o.id)}</strong> · ${U.fmtDateTime(o.closedAt || o.createdAt)} · ${esc(S.zoneById(o.zone).name)}</li>`).join('') +
+          '</ul>');
+      } else {
+        reincidenciasHtml = seccion('reincidencias', 'Reincidencia en el punto', '<p class="text-muted">No se encontraron reportes anteriores resueltos en un radio de 50 metros.</p>');
       }
 
       let grupoHtml = '';
@@ -153,6 +167,7 @@ EV.views.municipal = (function () {
         ${seccion('evidencia', 'Evidencia y cierre', evidencia)}
         ${seccion('prioridad', 'Prioridad', prioridad)}
         ${grupoHtml}
+        ${reincidenciasHtml}
         ${seccion('comentarios', 'Comentarios para la junta (' + r.thread.length + ')', conversacion)}`;
 
       body.querySelectorAll('details[data-sec]').forEach(d => {
