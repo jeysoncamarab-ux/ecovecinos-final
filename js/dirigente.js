@@ -535,7 +535,7 @@ EV.views.dirigente = (function () {
       const mensaje = root.querySelector('#sMsg').value.trim();
       if (!setError(root, 'eAs', asunto ? '' : 'Indica el asunto de la solicitud.')) return;
       const tipo = root.querySelector('#sTipo').value;
-      const normalizar = texto => texto.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\\s+/g, ' ').trim();
+      const normalizar = texto => texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
       const asuntoNormalizado = normalizar(asunto);
       const duplicada = S.s.solicitudes.find(s =>
         s.juntaId === JID && s.tipo === tipo && s.status !== 'atendida' &&
