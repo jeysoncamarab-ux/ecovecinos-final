@@ -339,7 +339,7 @@ EV.store = (function () {
   }
 
   return {
-    ZONES, JUNTAS, MUNI, TIPOS, TAMANOS, FASES, SOL_TIPOS, SOL_ESTADOS, USER,
+    ZONES, JUNTAS, VECINOS, MUNI, TIPOS, TAMANOS, FASES, SOL_TIPOS, SOL_ESTADOS, USER,
     get s() { return state; },
     save, reset, nextId, notify, quitarAvisos, addMessage,
     zoneFor, zoneById, juntaById, juntaOfZone, vecinosDeZona, vecinoById, reportsOfJunta,
