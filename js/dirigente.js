@@ -585,8 +585,10 @@ EV.views.dirigente = (function () {
           <div class="feed-header"><div><strong>${esc(s.id)}</strong> - ${esc(s.asunto)}</div><span class="badge badge--sol-${s.status}">${S.SOL_ESTADOS[s.status]}</span></div>
           <span class="text-muted">${esc(S.SOL_TIPOS[s.tipo])}. Enviada: ${U.fmtDate(s.createdAt)}. Último cambio de estado: ${U.fmtDateTime(s.lastChange)}</span>
           ${vencida ? `<p class="notice notice--warn">Sin respuesta hace ${Math.round(U.hoursSince(s.lastChange))} h (límite: ${S.s.settings.requestHours[s.tipo]} h).</p>` : ''}
+          ${s.rating ? `<p class="text-muted">Tu calificación: ${s.rating.score}/5</p>` : ''}
           <div class="form-actions">
             <button class="btn btn-secondary btn-sm" data-sol="${s.id}">Ver hilo (${s.thread.length})</button>
+            ${s.status === 'atendida' ? `<button class="btn btn-primary btn-sm" data-rate="${s.id}">${s.rating ? 'Actualizar calificación' : 'Calificar atención'}</button>` : ''}
             ${vencida ? `<button class="btn btn-primary btn-sm" data-remind="${s.id}">Reenviar recordatorio</button>` : ''}
           </div>
         </li>`;
@@ -598,7 +600,44 @@ EV.views.dirigente = (function () {
       if (!b) return;
       if (b.dataset.sol) abrirHilo(b.dataset.sol);
       if (b.dataset.remind) remind(b.dataset.remind);
+      if (b.dataset.rate) calificarSolicitud(b.dataset.rate);
     });
+
+    function calificarSolicitud(id) {
+      const s = S.s.solicitudes.find(x => x.id === id);
+      if (!s || s.status !== 'atendida') return;
+      const body = EV.ui.openDialog('Calificar atención - ' + s.id, '');
+      body.innerHTML = `<p>¿Cómo fue la atención de tu solicitud «${esc(s.asunto)}»?</p>
+        <form id="rateSol" class="form-group">
+          <label for="rateScore">Calificación (1 a 5)</label>
+          <select id="rateScore" required>
+            <option value="">Selecciona una calificación</option>
+            <option value="5">5 - Excelente</option><option value="4">4 - Buena</option>
+            <option value="3">3 - Regular</option><option value="2">2 - Mala</option><option value="1">1 - Muy mala</option>
+          </select>
+          <label for="rateComment">Comentario opcional</label>
+          <textarea id="rateComment" rows="3" maxlength="240"></textarea>
+          <button class="btn btn-primary" type="submit">Guardar calificación</button>
+        </form>`;
+      if (s.rating) {
+        body.querySelector('#rateScore').value = String(s.rating.score);
+        body.querySelector('#rateComment').value = s.rating.comment || '';
+      }
+      body.querySelector('#rateSol').addEventListener('submit', e => {
+        e.preventDefault();
+        const score = Number(body.querySelector('#rateScore').value);
+        if (!score || score < 1 || score > 5) {
+          EV.ui.toast('Selecciona una calificación del 1 al 5.', 'error');
+          body.querySelector('#rateScore').focus();
+          return;
+        }
+        s.rating = { score: score, comment: body.querySelector('#rateComment').value.trim(), ts: Date.now() };
+        S.notify('municipal', 'La junta calificó la atención de la solicitud ' + s.id + ' con ' + score + '/5.', s.id);
+        S.save();
+        EV.ui.closeDialog();
+        EV.ui.toast('Calificación guardada.', 'success');
+      });
+    }
 
     draw();
     return { refresh: draw };
