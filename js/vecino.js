@@ -58,21 +58,6 @@ EV.views.vecino = (function () {
         formulario = '<p class="text-muted">Los reportes resueltos ya no admiten comentarios.</p>';
       }
 
-      // HU-48: permitir valorar la atención después del cierre del reporte.
-      let calificacion = '';
-      if (mio && r.status === 'resolved') {
-        calificacion = r.rating
-          ? `<div class="notice notice--soft"><strong>Tu calificación: ${r.rating.score}/5</strong><p>${esc(r.rating.comment || 'Sin comentario adicional.')}</p><span class="text-muted">${U.fmtDateTime(r.rating.ts)}</span></div>`
-          : `<form id="ratingForm" class="form-group" novalidate>
-              <h3>¿Cómo fue la atención recibida?</h3>
-              <label for="ratingScore">Califica de 1 a 5</label>
-              <select id="ratingScore" required><option value="">Selecciona una calificación</option><option value="5">5 - Excelente</option><option value="4">4 - Buena</option><option value="3">3 - Regular</option><option value="2">2 - Mala</option><option value="1">1 - Muy mala</option></select>
-              <label for="ratingComment">Comentario (opcional)</label>
-              <textarea id="ratingComment" rows="2" maxlength="240"></textarea>
-              <button class="btn btn-primary" type="submit">Enviar calificación</button>
-            </form>`;
-      }
-
       body.innerHTML = `
         <img class="detail-photo" src="${r.photo.dataUrl}" alt="Foto del foco de basura del reporte ${esc(r.id)}">
         <dl class="dl">
@@ -86,25 +71,7 @@ EV.views.vecino = (function () {
         ${resuelto}
         <h3>Comentarios</h3>
         ${comentarios}
-        ${formulario}
-        ${calificacion}`;
-
-      const ratingForm = body.querySelector('#ratingForm');
-      if (ratingForm) {
-        ratingForm.addEventListener('submit', e => {
-          e.preventDefault();
-          const score = Number(body.querySelector('#ratingScore').value);
-          if (!score || score < 1 || score > 5) {
-            EV.ui.toast('Selecciona una calificación del 1 al 5.', 'error');
-            body.querySelector('#ratingScore').focus();
-            return;
-          }
-          r.rating = { score: score, comment: body.querySelector('#ratingComment').value.trim(), ts: Date.now() };
-          S.save();
-          EV.ui.toast('Gracias por calificar la atención recibida.', 'success');
-          draw();
-        });
-      }
+        ${formulario}`;
 
       const form = body.querySelector('#cmtForm');
       if (form) {
