@@ -44,7 +44,7 @@ Las siguientes funciones se incorporaron o se identificaron durante la revisión
 
 | HU | Estado de implementación en esta rama | Ubicación / observación |
 |---|---|---|
-| HU-14 | No encontrada | No existe vista de ranking de vecinos. |
+| HU-14 | Implementada en código; pendiente de prueba funcional | `js/vecino.js`: ranking semanal de vecinos y barrios, posición personal y opción para ocultar el nombre sin perder puntos. Los puntajes iniciales son datos ficticios de demostración. |
 | HU-15 | No encontrada | No existe flujo de canje de puntos por beneficios. |
 | HU-19 | Implementada en código; pendiente de prueba funcional | `js/map.js`: los marcadores de reportes próximos se agrupan visualmente y conservan sus registros individuales. |
 | HU-23 | Implementada en código; pendiente de prueba funcional | `js/municipal.js`: detalle del reporte muestra reportes anteriores resueltos a 50 m o menos. |
