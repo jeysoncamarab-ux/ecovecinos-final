@@ -140,10 +140,3 @@ body.listo .hero-visual.anima { animation-delay: .2s; }
 }
 .impact-content > p { color: #56685c; }
 .footer-small { color: rgba(255,255,255,.72); }
-@media (min-width: 768px) {
-}
-@media (max-width: 767px) {
-}
-@media (prefers-reduced-motion: reduce) {
-  .story-image img { transition: none; }
-}
