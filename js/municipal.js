@@ -708,6 +708,7 @@ EV.views.municipal = (function () {
             </div>
             <div class="form-row"><label for="st-${s.id}">Estado</label><select id="st-${s.id}" data-sol="${s.id}">${opciones}</select></div>
           </div>
+          ${s.rating ? `<p class="notice notice--soft">Calificación recibida: <strong>${s.rating.score}/5</strong>${s.rating.comment ? '<br>' + esc(s.rating.comment) : ''}<br><span class="text-muted">${U.fmtDateTime(s.rating.ts)}</span></p>` : ''}
           <button class="btn btn-secondary btn-sm" data-thread="${s.id}">Ver hilo y responder (${s.thread.length})</button>
         </li>`;
       }).join('') + '</ul>';
