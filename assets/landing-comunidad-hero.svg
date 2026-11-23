@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 500" role="img" aria-labelledby="title desc">
+<title id="title">Vecinos cuidando su barrio</title><desc id="desc">Tres personas colaboran con bolsas y contenedores de reciclaje rodeados de plantas.</desc>
+<defs><linearGradient id="bag" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#78c94e"/><stop offset="1" stop-color="#24834b"/></linearGradient></defs>
+<g opacity=".9" fill="#77bf50"><path d="M20 390c-40-75 8-118 53-75 20 37-2 64-53 75Zm25-3c-3-79 48-111 80-65-6 49-39 68-80 65Z"/><path d="M355 420c-43-68-4-112 42-76 22 34 2 62-42 76Zm27-6c3-76 53-102 81-55-9 45-44 62-81 55Z"/></g>
+<g stroke="#174f35" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<!-- Adult on left -->
+<path d="M87 194q-8-56 43-65 54 8 48 65" fill="#1c593a"/><circle cx="131" cy="160" r="38" fill="#e9ad7d"/><path d="M95 148q13-52 71-24l12 28q-40-22-83-4" fill="#174f35" stroke="none"/>
+<path d="M101 210q29-23 61 0l25 105-99 0Z" fill="#27834d"/><path d="M108 228 64 282m94-52 45 44" fill="none"/><path d="M121 315 91 393m42-78 36 78" fill="none"/><path d="M113 238q18 18 37 0" fill="none" stroke="#f2f6e9"/><path d="M124 269l15 12 14-12" fill="none" stroke="#f2f6e9"/>
+<!-- Woman on right -->
+<path d="M254 175q-3-73 61-81 68 8 65 90l-15 43H263Z" fill="#253a2d"/><circle cx="315" cy="172" r="39" fill="#f0bd91"/><path d="M275 162q9-71 81-44l28 37q-44-17-109 7" fill="#253a2d" stroke="none"/>
+<path d="M278 218q36-26 72 0l30 108H256Z" fill="#e7a72c"/><path d="m281 235-41 54m113-54 43-55" fill="none"/><path d="M283 326 259 405m69-79 31 79" fill="none"/><path d="M298 185q16 13 31 0" fill="none" stroke="#794b39" stroke-width="4"/>
+<!-- Child in front -->
+<circle cx="213" cy="276" r="31" fill="#dca078"/><path d="M180 270q4-51 56-34l13 30q-34-12-69 4" fill="#3d3029" stroke="none"/><path d="M184 313q31-20 61 0l21 84h-101Z" fill="#f3f0df"/><path d="m190 333-30 43m78-43 32 41" fill="none"/><path d="m196 395-13 57m44-57 20 57" fill="none"/><path d="M202 286q11 9 22 0" fill="none" stroke="#794b39" stroke-width="4"/>
+</g>
+<!-- recycling sack and bins -->
+<path d="M132 378q45-21 89 0l-10 105q-34 21-69 0Z" fill="url(#bag)" stroke="#174f35" stroke-width="7"/>
+<path d="M151 378q-2-26 23-26t24 26" fill="none" stroke="#174f35" stroke-width="7"/>
+<path d="M174 414l-14 23 16 0-8 17 31-31-17 0 9-9Z" fill="#fff"/>
+<path d="M326 357h77l-8 130h-62Z" fill="#187447" stroke="#174f35" stroke-width="7"/>
+<path d="M317 351h96v16h-96Z" fill="#f4b32f" stroke="#174f35" stroke-width="7"/>
+<path d="M350 398l-12 19h14l-7 18 29-28h-15l8-9Z" fill="#e9f6e8"/>
+<g fill="#b4df68"><path d="M40 455q-30-58 13-71 34 26-13 71Zm0 0q-3-56 43-58 12 40-43 58Z"/><path d="M390 315q-18-51 20-58 28 29-20 58Zm0 0q-2-48 39-49 9 35-39 49Z"/></g>
+</svg>
